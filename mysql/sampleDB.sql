@@ -8,3 +8,4 @@ CREATE TABLE users (
     name VARCHAR(100),
     email VARCHAR(100)
 );
+-- gill
