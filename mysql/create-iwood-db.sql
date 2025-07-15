@@ -14,8 +14,7 @@ create table customers (
     zip			varchar(10) not null,
     phone		varchar(20) not null,
     email 		varchar(255) not null,
-    notes		text,
-    first_visit	datetime default current_timestamp
+    notes		text
 );
 
 create table customer_visits (
@@ -168,7 +167,7 @@ create table items (
   item_color  varchar(255) not null,
   item_model  varchar(255) not null,
   description 	varchar(255) not null,
-  cost        decimal(10,2) not null
+  cost        decimal(10,2) not null,
   price			decimal(10,2) not null,
   quantity		int not null,
   sell_item    boolean not null,
