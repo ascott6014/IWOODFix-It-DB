@@ -49,6 +49,14 @@ create table federal_tax_log(
   is_active             boolean default true
 );
 
+create table employees (
+	employee_id				int primary key auto_increment,
+    first_name   varchar(255) not null,
+    last_name    varchar(255) not null,
+    phone        varchar(20) not null,
+    email        varchar(255) not null
+);
+
 create table addresses (
   address_id    int primary key auto_increment,
     employee_id int not null,
@@ -57,18 +65,8 @@ create table addresses (
     state_id         int not null,
     zip              varchar(10) not null,
     is_active        boolean not null,
-    CONSTRAINT addresses_fk_states FOREIGN KEY (state_id) REFERENCES states (state_id)
-);
-
-create table employees (
-	employee_id				int primary key auto_increment,
-    first_name   varchar(255) not null,
-    last_name    varchar(255) not null,
-    phone        varchar(20) not null,
-    email        varchar(255) not null,
-    address_id   int not null,
-    CONSTRAINT employees_fk_addresses FOREIGN KEY (address_id) REFERENCES addresses (address_id)
-
+    CONSTRAINT addresses_fk_states FOREIGN KEY (state_id) REFERENCES states (state_id),
+    CONSTRAINT addresses_fk_employees FOREIGN KEY (employee_id) REFERENCES employees (employee_id)
 );
 
 create table titles (
