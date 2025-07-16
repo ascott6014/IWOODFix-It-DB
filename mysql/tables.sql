@@ -20,7 +20,8 @@ create table customers (
 create table customer_visits (
 	customer_visits_id		int primary key auto_increment,
     customer_id				int not null,
-    visit_date				datetime,
+    visit_type				enum('Order', 'Repair', 'Install') not null,
+    visit_date				datetime not null default current_timestamp,
     CONSTRAINT customer_visits_fk_customers FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
 );
 
@@ -177,7 +178,7 @@ create table orders (
 	order_id 		int primary key auto_increment,
     customer_id		int not null,
     order_date		date not null,
-    order_cost		decimal(10,2),
+    order_total		decimal(10,2),
 	CONSTRAINT orders_fk_customers FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
 );
 
@@ -204,7 +205,7 @@ create table order_items (
     order_id			int not null,
     item_id			int not null,
     quantity			int not null,
-    cost				decimal(10,2),
+    total_price				decimal(10,2),
     CONSTRAINT order_items_fk_orders FOREIGN KEY (order_id) REFERENCES orders(order_id),
     CONSTRAINT order_items_fk_items FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
