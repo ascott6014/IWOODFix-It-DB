@@ -237,80 +237,8 @@ create table payments (
 );
 
 
--- Triggers
 
--- updates invoice status upon payment
-DELIMITER $$
-CREATE TRIGGER update_invoice_status_after_payment
-AFTER INSERT ON payments
-FOR EACH ROW
-BEGIN
-  DECLARE total_paid DECIMAL(10,2);
 
-  -- Sum of all payments made toward this invoice
-  SELECT SUM(payment_amount)
-  INTO total_paid
-  FROM payments
-  WHERE invoice_id = NEW.invoice_id;
-
-  -- Update the invoice status
-  UPDATE invoices
-  SET status = CASE
-    WHEN total_paid >= total THEN 'Paid'
-    WHEN total_paid > 0 THEN 'Partially Paid'
-    ELSE 'Unpaid'
-  END
-  WHERE invoice_id = NEW.invoice_id;
-END$$
-DELIMITER ;
-
--- creates log for item price upon item creation
-DELIMITER $$
-
-CREATE TRIGGER log_price_on_insert_item
-AFTER INSERT ON items
-FOR EACH ROW
-BEGIN
-  INSERT INTO item_price_log (
-    item_id, price, start_date
-  )
-  VALUES (
-    NEW.item_id, NEW.price, CURDATE()
-  );
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE TRIGGER log_price_on_update_item
-AFTER UPDATE ON items
-FOR EACH ROW
-BEGIN
-  IF OLD.price <> NEW.price THEN
-    INSERT INTO item_price_log (
-      item_id, price, start_date
-    )
-    VALUES (
-      NEW.item_id, NEW.price, CURDATE()
-    );
-  END IF;
-END$$
-
-DELIMITER ;
-
--- VIEWS 
-
--- Invoice balance view
-CREATE VIEW invoice_balances AS
-SELECT 
-    i.invoice_id,
-    i.total,
-    COALESCE(SUM(p.payment_amount), 0) AS total_paid,
-    (i.total - COALESCE(SUM(p.payment_amount), 0)) AS balance
-FROM Invoices i
-LEFT JOIN Payments p ON i.invoice_id = p.invoice_id
-GROUP BY i.invoice_id, i.total;
 
 
 
