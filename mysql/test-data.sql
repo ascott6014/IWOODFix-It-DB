@@ -1,68 +1,85 @@
-use iwood;
--- 1. Customers
-INSERT INTO customers (first_name, last_name, address, city, state, zip, phone, email, notes)
-VALUES 
-('John', 'Smith', '101 Main St', 'Marion', 'AR', '72364', '555-1111', 'john.smith@example.com', 'Regular customer'),
-('Lisa', 'Chan', '202 Elm St', 'West Memphis', 'AR', '72301', '555-2222', 'lisa.chan@example.com', 'First-time customer');
+-- States
+INSERT INTO states (state_id, state_name, abbreviation)
+VALUES
+(1, 'Arkansas', 'AR'),
+(2, 'Tennessee', 'TN'),
+(3, 'Tennessee', 'TN'),
+(4, 'Missouri', 'MO'),
+(5, 'Texas', 'TX');
 
--- 2. States
-INSERT INTO states (state_name, abbreviation)
-VALUES ('Arkansas', 'AR'), ('Tennessee', 'TN');
+-- Employees
+INSERT INTO employees (employee_id, first_name, last_name, phone, email)
+VALUES
+(1, 'Grace', 'Hopper', '555-1001', 'grace.hopper@example.com'),
+(2, 'Alan', 'Turing', '555-1002', 'alan.turing@example.com'),
+(3, 'Ada', 'Lovelace', '555-1003', 'ada.lovelace@example.com'),
+(4, 'Linus', 'Torvalds', '555-1004', 'linus.torvalds@example.com'),
+(5, 'Margaret', 'Hamilton', '555-1005', 'margaret.hamilton@example.com');
 
--- 3. Federal Tax Log
-INSERT INTO federal_tax_log (percentage, start_date, is_active)
-VALUES (12.5, NOW(), true);
-
--- 4. State Tax Log
-INSERT INTO state_tax_log (state_id, percentage, start_date)
-VALUES (1, 6.5, NOW());
-
--- 5. Employees and Addresses
+-- Addresses
 INSERT INTO addresses (employee_id, home_address, city, state_id, zip, is_active)
-VALUES (1, '300 Oak Ln', 'Marion', 1, '72364', true),
-       (2, '400 Pine Ave', 'Memphis', 2, '38103', true);
+VALUES
+(1, '123 Main St', 'Little Rock', 1, '72201', TRUE),
+(2, '456 Pine St', 'Memphis', 2, '38103', TRUE),
+(3, '789 Oak Ave', 'Nashville', 3, '37201', TRUE),
+(4, '321 Cedar Blvd', 'St. Louis', 4, '63101', TRUE),
+(5, '654 Maple Rd', 'Dallas', 5, '75201', TRUE);
 
-INSERT INTO employees (first_name, last_name, phone, email, address_id)
-VALUES 
-('Alice', 'Brown', '555-3333', 'alice.b@example.com', 1),
-('Mark', 'Lopez', '555-4444', 'mark.l@example.com', 2);
+-- customers
+INSERT INTO customers (first_name, last_name, address, city, state, zip, phone, email, notes)
+VALUES
+('Alice', 'Johnson', '100 Oak St', 'Little Rock', 'AR', '72201', '555-1234', 'alice.johnson@example.com', 'Prefers evening calls'),
+('Bob', 'Smith', '220 Pine Ave', 'Memphis', 'TN', '38103', '555-5678', 'bob.smith@example.com', 'Requested paper invoices'),
+('Charlie', 'Davis', '301 Maple Rd', 'Nashville', 'TN', '37201', '555-8765', 'charlie.davis@example.com', 'Has a service discount'),
+('Diana', 'Miller', '17 Cedar Blvd', 'St. Louis', 'MO', '63101', '555-4321', 'diana.miller@example.com', 'Follow-up on installation'),
+('Ethan', 'Taylor', '88 Elm St', 'Dallas', 'TX', '75201', '555-2468', 'ethan.taylor@example.com', 'Needs repair on item 102');
 
--- 6. Titles
-INSERT INTO titles (title_name, description)
-VALUES ('Installer', 'Installs custom woodwork'), ('Technician', 'Handles repairs and diagnostics');
-
-INSERT INTO title_log (title_id, employee_id, start_date)
-VALUES (1, 1, NOW()), (2, 2, NOW());
-
--- 7. Items
+-- items
 INSERT INTO items (item_name, item_color, item_model, description, cost, price, quantity, sell_item, repair_item, install_item)
-VALUES 
-('Wood Cabinet', 'Mahogany', 'WC-100', 'Custom wood cabinet', 80.00, 150.00, 5, true, false, true),
-('Sliding Door', 'White', 'SD-200', 'Interior sliding door', 60.00, 120.00, 3, true, false, true);
+VALUES
+('Smart Thermostat', 'White', 'ST100', 'Wi-Fi enabled thermostat with touchscreen', 75.00, 149.99, 20, TRUE, FALSE, TRUE),
+('LED Light Panel', 'Silver', 'LP200', 'Energy-efficient light panel for ceiling install', 45.50, 99.00, 35, TRUE, FALSE, TRUE),
+('Security Camera', 'Black', 'SC300', 'Outdoor camera with motion detection', 60.00, 129.99, 15, TRUE, TRUE, TRUE),
+('Smart Door Lock', 'Gray', 'DL400', 'Fingerprint-enabled electronic lock', 85.00, 169.99, 10, TRUE, TRUE, TRUE),
+('Wall Outlet Kit', 'White', 'WO500', 'Standard electrical outlet with USB ports', 12.75, 29.99, 50, TRUE, FALSE, TRUE),
+('Router', 'Black', 'RT600', 'High-speed dual-band router', 40.00, 89.99, 25, TRUE, TRUE, FALSE),
+('Smoke Detector', 'White', 'SD700', 'Battery-operated smoke and carbon monoxide detector', 18.00, 39.99, 40, TRUE, TRUE, TRUE),
+('Speaker System', 'Black', 'SP800', 'Bluetooth speaker system with subwoofer', 55.00, 119.99, 12, TRUE, TRUE, FALSE),
+('Cable Bundle', 'Gray', 'CB900', '10-pack of HDMI cables', 20.00, 45.00, 100, TRUE, FALSE, FALSE),
+('Backup Battery', 'Black', 'BB1000', 'Portable power backup for devices', 30.00, 69.99, 18, TRUE, FALSE, FALSE);
 
--- 8. Item Price Log (trigger will populate as needed)
 
--- 9. Repairs and Installs
+
+-- repairs 
 INSERT INTO repairs (customer_id, item_id, problem, solution, repair_cost, repair_date)
-VALUES (1, 2, 'Stuck track', 'Lubricated rollers', 30.00, CURDATE());
+VALUES
+(3, 1, 'Thermostat screen frozen', 'Reset firmware', 45.00, CURRENT_DATE),
+(4, 3, 'Camera lens cracked', 'Replaced lens', 60.00, CURRENT_DATE);
 
+-- installs
 INSERT INTO installs (customer_id, employee_id, description, cost, install_date)
-VALUES (2, 1, 'Installed cabinet in kitchen', 100.00, CURDATE());
+VALUES
+(5, 2, 'Install smart door lock', 85.00, CURRENT_DATE),
+(1, 4, 'Install LED ceiling panel', 99.00, CURRENT_DATE);
 
--- 10. Orders
-INSERT INTO orders (customer_id, order_date, order_cost)
-VALUES (1, CURDATE(), 150.00);
+-- orders
+insert into orders (customer_id, order_date, order_total)
+values (1, current_date(), null);
 
--- 11. Invoices
-INSERT INTO invoices (customer_id, install_id, repair_id, order_id, invoice_date, subtotal, tax_amount, total)
-VALUES (1, NULL, 1, 1, curdate(), 180.00, 10.25, 190.25),
-       (2, 1, NULL, NULL, curdate(), 100.00, 6.50, 106.50);
+-- order items
+-- First item
+INSERT INTO order_items (order_id, item_id, quantity, total_price)
+VALUES (1, 1, 2, NULL);
 
--- 12. Payments (to trigger invoice status update)
-INSERT INTO payments (invoice_id, payment_amount, payment_method, payment_date)
-VALUES (1, 190.25, 'Credit Card', NOW()),
-       (2, 50.00, 'Cash', NOW());
+-- Second item
+INSERT INTO order_items (order_id, item_id, quantity, total_price)
+VALUES (1, 2, 1, NULL);
 
--- 13. Verify invoice status
-SELECT invoice_id, status, total FROM invoices;
+UPDATE order_items
+SET quantity = 3
+WHERE order_item_id = 1;
+
+-- show triggers;
+
+
 
