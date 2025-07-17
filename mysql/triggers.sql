@@ -62,108 +62,19 @@ END$$
 
 DELIMITER ;
 
--- updates customer visits on order
-CREATE TRIGGER log_order_visit
-AFTER INSERT ON orders
-FOR EACH ROW
-INSERT INTO customer_visits (customer_id, visit_type)
-VALUES (NEW.customer_id, 'Order');
+-- updates federal tax log upon insert DOES NOT WORK CHANGE 						CHANGE THAT
+DELIMITER $$
 
--- updates customer visits on repair
-CREATE TRIGGER log_repair_visit
-AFTER INSERT ON repairs
-FOR EACH ROW
-INSERT INTO customer_visits (customer_id, visit_type)
-VALUES (NEW.customer_id, 'Repair');
-
--- updates customer visits on install
-CREATE TRIGGER log_install_visit
-AFTER INSERT ON installs
-FOR EACH ROW
-INSERT INTO customer_visits (customer_id, visit_type)
-VALUES (NEW.customer_id, 'Install');
-
--- sets order items total price upon insertion 
-DELIMITER //
-
-CREATE TRIGGER calculate_order_item_total_price
-BEFORE INSERT ON order_items
+CREATE TRIGGER update_old_federal_tax_on_insert
+BEFORE INSERT ON federal_tax_log
 FOR EACH ROW
 BEGIN
-  DECLARE unit_price DECIMAL(10,2);
-
-  SELECT price INTO unit_price
-  FROM items
-  WHERE item_id = NEW.item_id;
-
-  SET NEW.total_price = unit_price * NEW.quantity;
-END //
-
-DELIMITER ;
-
-
--- updates total price for order after update to quantity on order item
-
-DELIMITER //
-
-CREATE TRIGGER recalculate_order_item_total_price
-BEFORE UPDATE ON order_items
-FOR EACH ROW
-BEGIN
-  DECLARE unit_price DECIMAL(10,2);
-
-  SELECT price INTO unit_price
-  FROM items
-  WHERE item_id = NEW.item_id;
-
-  SET NEW.total_price = unit_price * NEW.quantity;
-END //
+  -- Set end_date and deactivate any currently active federal tax record
+  UPDATE federal_tax_log
+  SET 
+    end_date = NEW.start_date,
+    is_active = false
+  WHERE is_active = true;
+END$$
 
 DELIMITER ;
-
--- updats orders order total after insert to order item
-DELIMITER //
-
-CREATE TRIGGER update_order_total_after_insert
-AFTER INSERT ON order_items
-FOR EACH ROW
-BEGIN
-  DECLARE total DECIMAL(10,2);
-
-  SELECT SUM(total_price)
-  INTO total
-  FROM order_items
-  WHERE order_id = NEW.order_id;
-
-  UPDATE orders
-  SET order_total = total
-  WHERE order_id = NEW.order_id;
-END //
-
-DELIMITER ;
-
--- updates order total after item or quantity is changed
-DELIMITER //
-
-CREATE TRIGGER update_order_total_after_update
-AFTER UPDATE ON order_items
-FOR EACH ROW
-BEGIN
-  DECLARE total DECIMAL(10,2);
-
-  SELECT SUM(total_price)
-  INTO total
-  FROM order_items
-  WHERE order_id = NEW.order_id;
-
-  UPDATE orders
-  SET order_total = total
-  WHERE order_id = NEW.order_id;
-END //
-
-DELIMITER ;
-
-
-
-
-
