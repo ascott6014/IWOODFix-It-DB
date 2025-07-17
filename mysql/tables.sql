@@ -30,28 +30,13 @@ create table customer_visits (
 create table states (
 	state_id 		int primary key auto_increment,
     state_name		varchar(255) not null,
-    abbreviation	varchar(2) not null
+    state_code		varchar(2) not null
 );
 
-create table state_tax_log (
-	state_tax_log_id    int primary key auto_increment,
-    state_id    int not null,
-    percentage  decimal(10, 2) not null,
-    start_date  datetime not null,
-    end_date    datetime,
-    CONSTRAINT state_tax_log_fk_states FOREIGN KEY (state_id) REFERENCES states (state_id)
-);
 
-create table federal_tax_log(
-  federal_tax_log_id    int primary key auto_increment,
-  percentage            decimal(10,2) not null,
-  start_date            datetime not null,
-  end_date              datetime,
-  is_active             boolean default true
-);
 
 create table employees (
-	employee_id				int primary key auto_increment,
+	employee_id	 int primary key auto_increment,
     first_name   varchar(255) not null,
     last_name    varchar(255) not null,
     phone        varchar(20) not null,
@@ -59,9 +44,9 @@ create table employees (
 );
 
 create table addresses (
-  address_id    int primary key auto_increment,
-    employee_id int not null,
-    home_address     varchar(255) not null,
+    address_id       int primary key auto_increment,
+    employee_id      int not null,
+    address          varchar(255) not null,
     city             varchar(255) not null,
     state_id         int not null,
     zip              varchar(10) not null,
@@ -82,6 +67,7 @@ create table title_log (
     employee_id   int not null,
     start_date    datetime not null,
     end_date      datetime,
+    is_active	  boolean,
     CONSTRAINT title_log_fk_titles FOREIGN KEY (title_id) REFERENCES titles (title_id),
     CONSTRAINT tile_log_fk_employees FOREIGN KEY (employee_id) REFERENCES employees (employee_id)
 );
@@ -120,12 +106,8 @@ create table pay_log (
   employee_id         int not null,
   payment_date        datetime not null,
   gross_amount        decimal(10,2),
-  state_tax_log_id    int not null,
-  federal_tax_log_id  int not null,
   net_amount          decimal(10,2),
-  CONSTRAINT pay_log_fk_employees FOREIGN KEY (employee_id) REFERENCES employees (employee_id),
-  CONSTRAINT pay_log_fk_state_tax_log FOREIGN KEY (state_tax_log_id) REFERENCES state_tax_log (state_tax_log_id),
-  CONSTRAINT pay_log_fk_federal_tax_log FOREIGN KEY (federal_tax_log_id) REFERENCES federal_tax_log (federal_tax_log_id)
+  CONSTRAINT pay_log_fk_employees FOREIGN KEY (employee_id) REFERENCES employees (employee_id)
 );
 
 create table items (
@@ -145,9 +127,11 @@ create table items (
 create table item_price_log (
 	item_price_log_id		int primary key auto_increment,
     item_id					int not null,
+    cost					decimal(10,2),
     price					decimal(10,2),
     start_date				date not null,
     end_date				date,
+    is_active				boolean,
     CONSTRAINT item_price_log_fk_items FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
 
@@ -169,7 +153,9 @@ create table repairs (
     problem	varchar(255) not null,
     solution varchar(255) not null,
     repair_cost			decimal(10,2) not null,
-    repair_date			date not null,
+    status				enum("not started", "in progress", "completed", "unsuccessful"),
+    start_date			datetime not null,
+    end_date			datetime not null,
     CONSTRAINT repairs_fk_customers FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
     CONSTRAINT repairs_fk_items FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
@@ -192,19 +178,19 @@ create table install_items (
 );
 
 create table repair_items (
-	repair_item_id 	int primary key auto_increment,
-    repair_id 		int not null,
-    item_id 		int not null,
-    quantity		int not null,
+	repair_item_id 				int primary key auto_increment,
+    repair_id 					int not null,
+    item_id 					int not null,
+    repair_item_quantity		int not null,
     CONSTRAINT repair_items_fk_repairs FOREIGN KEY (repair_id) REFERENCES repairs (repair_id),
     CONSTRAINT repair_items_fk_items FOREIGN KEY (item_id)	REFERENCES items (item_id)
 );
 
 create table order_items (
-	order_item_id		int primary key auto_increment,
-    order_id			int not null,
-    item_id			int not null,
-    quantity			int not null,
+	order_item_id				int primary key auto_increment,
+    order_id					int not null,
+    item_id						int not null,
+    order_item_quantity			int not null,
     total_price				decimal(10,2),
     CONSTRAINT order_items_fk_orders FOREIGN KEY (order_id) REFERENCES orders(order_id),
     CONSTRAINT order_items_fk_items FOREIGN KEY (item_id) REFERENCES items(item_id)
@@ -220,7 +206,7 @@ create table invoices (
     invoice_date	date not null,
     status			enum('Unpaid', 'Paid', 'Partially Paid', 'Overdue') default 'Unpaid',
     subtotal		decimal(10,2) not null,
-    tax				decimal(10,2) default 10.25 not null,
+    tax_rate    	decimal(10,2) default 10.25 not null,
     tax_amount		decimal(10,2) not null,
     total			decimal(10,2) not null,
     CONSTRAINT invoices_fk_customers FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
